@@ -10,7 +10,7 @@ def main():
     conn, addr = server_socket.accept() # wait for client, this is synchronous ?  won't execute code belwo until client sends request
     print("new connection accepted ! ")
     
-    conn.send(b"+OK\r\n")
+    conn.send(b"+PONG\r\n")
 
 if __name__ == "__main__":
     main()
