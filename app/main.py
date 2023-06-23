@@ -1,6 +1,7 @@
 import socket
+import asyncio
 
-def main():
+async def main():
     print("Logs from your program will appear here!")
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
@@ -17,4 +18,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
