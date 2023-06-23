@@ -8,8 +8,13 @@ def main():
 
     while True:        
         data = conn.recv(4096)
+
+        # checks data stream so server doesn't crash and wait for data finish sending
+        if not data:
+            break
         print("new connection accepted ! ")
         conn.send(b"+PONG\r\n")
+
 
 if __name__ == "__main__":
     main()
