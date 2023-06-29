@@ -1,20 +1,29 @@
 import socket
+import asyncio
 
-def main():
+PORT = 6379
+HOST = "localhost"
+
+async def main():
     print("Logs from your program will appear here!")
 
-    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
-    conn, addr = server_socket.accept() 
+    # use asyncio to start a socket server
+    # then call an async function to return PONG
+    server = await asyncio.start_server(handler, "localhost", 6379, limit=4096, reuse_port=True)
 
+    async with server:
+        await server.serve_forever()
+
+# this handler needs the while loop to keep opening for requests
+async def handler(reader, writer):
     while True:        
-        data = conn.recv(4096)
-
+        data = await reader.read(100)
         # checks data stream so server doesn't crash and wait for data finish sending
         if not data:
             break
         print("new connection accepted ! ")
-        conn.send(b"+PONG\r\n")
+        writer.write(b"+PONG\r\n")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
