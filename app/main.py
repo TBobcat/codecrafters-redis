@@ -30,7 +30,9 @@ async def handler(reader, writer):
         else:
             echo_idx = lst.index(b'echo')
             return_lst = lst[(echo_idx+1):]
-            parsed_str = parse(return_lst)
+            parsed_str = parse_simple_string(return_lst)
+            print(return_lst)
+            print(parsed_str)
             writer.write(bytes(parsed_str, encoding='utf-8'))
 
 def parse(lst):
@@ -46,6 +48,14 @@ def parse(lst):
             length += 1
     
     return "*" + str(length) + '\r\n' + return_s
+
+def parse_simple_string(lst):
+    """
+    return the single full string of echo command
+    """
+    s = bytes.decode(lst[1])
+    return "+" + s + "\r\n"
+
 
 if __name__ == "__main__":
     asyncio.run(main())
