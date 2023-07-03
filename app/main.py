@@ -31,10 +31,9 @@ async def handler(reader, writer):
             echo_idx = lst.index(b'echo')
             return_lst = lst[(echo_idx+1):]
             parsed_str = parse_simple_string(return_lst)
-            print(return_lst)
-            print(parsed_str)
             writer.write(bytes(parsed_str, encoding='utf-8'))
 
+# parsing all strings after echo, if there's more than one 
 def parse(lst):
     """"
     parse input list of bytes to a byte string that echo returns, in redis protocol
