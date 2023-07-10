@@ -62,6 +62,7 @@ async def handler(reader, writer):
                 # if key in mem and exp_time is less than current time, return value
                 if lst[4] in mem and cur_mils <= mem[lst[4]][1]:
                     value = mem[lst[4]][0]
+                    print(value)
                     writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
                 else:
                     writer.write(bytes("-1\r\n", "utf-8"))
