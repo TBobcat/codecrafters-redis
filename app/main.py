@@ -38,20 +38,40 @@ async def handler(reader, writer):
             writer.write(bytes('+' + lst[4] + '\r\n', encoding='utf-8'))
 
         elif 'set' in lst:
-            exp_time = time.time() * 1000 + int(lst[10])
-            mem[lst[4]] = (lst[6], exp_time)
-            print(mem)
-            writer.write(b'+OK\r\n')
+            # set expiring time in a tuple only if px is in command
+            if 'px' in lst:
+                exp_time = time.time() * 1000 + int(lst[10])
+                mem[lst[4]] = (lst[6], exp_time)
+                print(mem)
+                writer.write(b'+OK\r\n')
+            else:
+                mem[lst[4]] = lst[6]
+                writer.write(b'+OK\r\n')
 
         elif 'get' in lst:
-            # if key in mem and exp_time is less than current time
-            # return value
-            if lst[4] in mem and time.time() * 1000 <= mem[lst[4]][1]:
-                value = mem[lst[4]][0]
-                writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
-            else:
+            if lst[4] not in mem:
                 # return error to redis client
                 writer.write(bytes("-1\r\n", "utf-8"))
+
+            # time exp is set
+            elif type(mem[lst[4]]) is tuple:
+                print(mem)
+                print(lst)
+                # if key in mem and exp_time is less than current time, return value
+                if lst[4] in mem and time.time() * 1000 <= mem[lst[4]][1]:
+                    value = mem[lst[4]][0]
+                    writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
+                else:
+                    print(mem)
+                    print(lst)
+                    writer.write(bytes("-1\r\n", "utf-8"))
+
+            # time exp is not set
+            elif lst[4] in mem:
+                value = mem[lst[4]]
+                writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
+
+                
 
             
 
