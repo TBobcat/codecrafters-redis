@@ -1,5 +1,6 @@
 import socket
 import asyncio
+import time
 
 PORT = 6379
 HOST = "localhost"
@@ -27,29 +28,36 @@ async def handler(reader, writer):
             break
 
         lst = parse(data)
+
         # cheating PING command with this case
         if data == b'*1\r\n$4\r\nping\r\n':
             writer.write(b'+PONG\r\n')
+
         elif 'echo' in lst:
             print(lst)
             writer.write(bytes('+' + lst[4] + '\r\n', encoding='utf-8'))
+
         elif 'set' in lst:
-            mem[lst[4]] = lst[6]
+            exp_time = time.time() * 1000 + int(lst[10])
+            mem[lst[4]] = (lst[6], exp_time)
             print(mem)
             writer.write(b'+OK\r\n')
+
         elif 'get' in lst:
-            if lst[4] in mem:
-                value = mem[lst[4]]
+            # if key in mem and exp_time is less than current time
+            # return value
+            if lst[4] in mem and time.time() * 1000 <= mem[lst[4]][1]:
+                value = mem[lst[4]][0]
                 writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
             else:
+                # return error to redis client
                 writer.write(bytes("-1\r\n", "utf-8"))
 
             
 
-# decode b'*3\r\n$3\r\nset\r\n$1\r\na\r\n$1\r\n3\r\n' into list of strings
 def parse(lst):
-    """"
-    parse input list of bytes to a byte string that echo returns, in redis protocol
+    """
+    decode b'*3\r\n$3\r\nset\r\n$1\r\na\r\n$1\r\n3\r\n' into list of strings
     """
     decoded_slst = []
     split_list = lst.split()
@@ -59,13 +67,6 @@ def parse(lst):
     
     print(decoded_slst)
     return decoded_slst
-
-def parse_simple_string(lst):
-    """
-    return the single full string of echo command
-    """
-    s = bytes.decode(lst[1])
-    return "+" + s + "\r\n"
 
 
 if __name__ == "__main__":
