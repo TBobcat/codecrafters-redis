@@ -71,9 +71,6 @@ async def handler(reader, writer):
             elif lst[4] in mem:
                 value = mem[lst[4]]
                 writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
-
-                
-
             
 
 def parse(lst):
