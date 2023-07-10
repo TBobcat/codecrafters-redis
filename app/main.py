@@ -30,11 +30,9 @@ async def handler(reader, writer):
         # cheating PING command with this case
         if data == b'*1\r\n$4\r\nping\r\n':
             writer.write(b'+PONG\r\n')
-        elif b'echo' in data:
-            echo_idx = lst.index(b'echo')
-            return_lst = lst[(echo_idx+1):]
-            parsed_str = parse_simple_string(return_lst)
-            writer.write(bytes(parsed_str, encoding='utf-8'))
+        elif 'echo' in lst:
+            print(lst)
+            writer.write(bytes('+' + lst[4] + '\r\n', encoding='utf-8'))
         elif 'set' in lst:
             mem[lst[4]] = lst[6]
             print(mem)
