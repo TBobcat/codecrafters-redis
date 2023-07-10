@@ -59,7 +59,7 @@ async def handler(reader, writer):
                 print(lst)
                 print(time.time()*1000,  mem[lst[4]][1])
                 # if key in mem and exp_time is less than current time, return value
-                if lst[4] in mem and int(time.time() * 1000 * 1000) <= int(mem[lst[4]][1] * 1000):
+                if lst[4] in mem and int(time.time() * 1000 * 1000) == int(mem[lst[4]][1] * 1000):
                     value = mem[lst[4]][0]
                     writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
                 else:
