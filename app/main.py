@@ -63,8 +63,6 @@ async def handler(reader, writer):
                     value = mem[lst[4]][0]
                     writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
                 else:
-                    print(mem)
-                    print(lst)
                     writer.write(bytes("-1\r\n", "utf-8"))
 
             # time exp is not set
