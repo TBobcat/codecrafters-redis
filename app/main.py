@@ -51,7 +51,7 @@ async def handler(reader, writer):
         elif 'get' in lst:
             if lst[4] not in mem:
                 # return error to redis client
-                writer.write(bytes("-1\r\n", "utf-8"))
+                writer.write(bytes("$-1\r\n", "utf-8"))
 
             # time exp is set
             elif type(mem[lst[4]]) is tuple:
@@ -65,7 +65,7 @@ async def handler(reader, writer):
                     print(value)
                     writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
                 else:
-                    writer.write(bytes("-1\r\n", "utf-8"))
+                    writer.write(bytes("$-1\r\n", "utf-8"))
 
             # time exp is not set
             elif lst[4] in mem:
