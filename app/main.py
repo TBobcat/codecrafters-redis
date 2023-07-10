@@ -57,6 +57,7 @@ async def handler(reader, writer):
             elif type(mem[lst[4]]) is tuple:
                 print(mem)
                 print(lst)
+                print(time.time()*1000,  mem[lst[4]][1])
                 # if key in mem and exp_time is less than current time, return value
                 if lst[4] in mem and time.time() * 1000 <= mem[lst[4]][1]:
                     value = mem[lst[4]][0]
