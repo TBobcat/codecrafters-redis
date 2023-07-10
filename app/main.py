@@ -3,6 +3,7 @@ import asyncio
 
 PORT = 6379
 HOST = "localhost"
+mem = {}
 
 async def main():
     print("Logs from your program will appear here!")
@@ -15,6 +16,8 @@ async def main():
         await server.serve_forever()
 
 # this handler needs the while loop to keep opening for requests
+# takes socket data in redis protocol, and set/get if needed, and 
+# writes response
 async def handler(reader, writer):
     while True:    
         print("new connection accepted ! ")    
@@ -23,30 +26,41 @@ async def handler(reader, writer):
         if not data:
             break
 
-        lst = data.split()
+        lst = parse(data)
         # cheating PING command with this case
         if data == b'*1\r\n$4\r\nping\r\n':
             writer.write(b'+PONG\r\n')
-        else:
+        elif b'echo' in data:
             echo_idx = lst.index(b'echo')
             return_lst = lst[(echo_idx+1):]
             parsed_str = parse_simple_string(return_lst)
             writer.write(bytes(parsed_str, encoding='utf-8'))
+        elif 'set' in lst:
+            mem[lst[4]] = lst[6]
+            print(mem)
+            writer.write(b'+OK\r\n')
+        elif 'get' in lst:
+            if lst[4] in mem:
+                value = mem[lst[4]]
+                writer.write(bytes('+' + value +'\r\n', encoding='utf-8'))
+            else:
+                writer.write(bytes("-1\r\n", "utf-8"))
 
-# parsing all strings after echo, if there's more than one 
+            
+
+# decode b'*3\r\n$3\r\nset\r\n$1\r\na\r\n$1\r\n3\r\n' into list of strings
 def parse(lst):
     """"
     parse input list of bytes to a byte string that echo returns, in redis protocol
     """
-    length = 0
-    return_s = ""
-
-    for byte_s in lst:
-        return_s+=bytes.decode(byte_s)+'\r\n'
-        if bytes.decode(byte_s)[0] != "$":
-            length += 1
+    decoded_slst = []
+    split_list = lst.split()
+    for s in split_list:
+        s = bytes.decode(s)
+        decoded_slst.append(s)
     
-    return "*" + str(length) + '\r\n' + return_s
+    print(decoded_slst)
+    return decoded_slst
 
 def parse_simple_string(lst):
     """
